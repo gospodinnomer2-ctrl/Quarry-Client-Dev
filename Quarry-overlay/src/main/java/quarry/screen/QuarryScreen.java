@@ -11,7 +11,7 @@ import java.util.List;
 public class QuarryScreen extends Screen {
     private static final String[] CATEGORIES = {"Combat", "Visuals", "Movement", "HUD", "Misc"};
     private int selectedCategory = 3;
-    private int panelX, panelY, panelW = 500, panelH = 300;
+    private int panelX, panelY, panelW = 560, panelH = 360;
 
     public QuarryScreen() { super(Text.literal("Quarry")); }
 
@@ -38,14 +38,14 @@ public class QuarryScreen extends Screen {
             ctx.drawText(textRenderer, Text.literal("Modules for this category are not implemented yet."), panelX + 136, panelY + 100, 0xFF9298AA, false);
         } else {
             for (int i = 0; i < modules.size(); i++) {
-                Module m = modules.get(i); int x = panelX + 136 + (i % 2) * 168; int y = panelY + 65 + (i / 2) * 52;
-                boolean hover = mouseX >= x && mouseX <= x + 158 && mouseY >= y && mouseY <= y + 42;
-                rounded(ctx, x, y, 158, 42, 7, hover ? 0xFF2B3041 : 0xFF1C2130);
-                ctx.fill(x, y, x + 158, y + 1, m.isEnabled() ? 0xFF9B72F2 : 0xFF3A4052);
+                Module m = modules.get(i); int x = panelX + 136 + (i % 3) * 132; int y = panelY + 65 + (i / 3) * 52;
+                boolean hover = mouseX >= x && mouseX <= x + 126 && mouseY >= y && mouseY <= y + 42;
+                rounded(ctx, x, y, 126, 42, 7, hover ? 0xFF2B3041 : 0xFF1C2130);
+                ctx.fill(x, y, x + 126, y + 1, m.isEnabled() ? 0xFF9B72F2 : 0xFF3A4052);
                 ctx.drawText(textRenderer, Text.literal(m.getName()), x + 9, y + 8, 0xFFF0F0F7, false);
                 ctx.drawText(textRenderer, Text.literal(m.isEnabled() ? "ON" : "OFF"), x + 9, y + 24, m.isEnabled() ? 0xFFB99AFF : 0xFF85899B, false);
-                rounded(ctx, x + 127, y + 14, 22, 12, 6, m.isEnabled() ? 0xFF8C65D8 : 0xFF414758);
-                ctx.fill(m.isEnabled() ? x + 139 : x + 129, y + 16, m.isEnabled() ? x + 147 : x + 137, y + 24, 0xFFFFFFFF);
+                rounded(ctx, x + 98, y + 14, 22, 12, 6, m.isEnabled() ? 0xFF8C65D8 : 0xFF414758);
+                ctx.fill(m.isEnabled() ? x + 110 : x + 100, y + 16, m.isEnabled() ? x + 118 : x + 108, y + 24, 0xFFFFFFFF);
             }
         }
         ctx.drawText(textRenderer, Text.literal("QUARRY  •  VISUAL CLIENT"), panelX + 136, panelY + panelH - 19, 0xFF686F82, false);
@@ -68,7 +68,11 @@ public class QuarryScreen extends Screen {
             case 2 -> m == ModuleManager.AUTO_SPRINT;
             case 3 -> m == ModuleManager.WATERMARK || m == ModuleManager.COORDINATES ||
                     m == ModuleManager.FPS || m == ModuleManager.PING ||
-                    m == ModuleManager.ARMOR_HUD || m == ModuleManager.DIRECTION_HUD;
+                    m == ModuleManager.ARMOR_HUD || m == ModuleManager.DIRECTION_HUD ||
+                    m == ModuleManager.SPEED || m == ModuleManager.CLOCK ||
+                    m == ModuleManager.KEYSTROKES || m == ModuleManager.POTION_HUD ||
+                    m == ModuleManager.ITEM_COUNTER || m == ModuleManager.SESSION_INFO ||
+                    m == ModuleManager.CUSTOM_CROSSHAIR;
             default -> false;
         };
     }
@@ -81,8 +85,8 @@ public class QuarryScreen extends Screen {
         }
         List<Module> modules=ModuleManager.getModules().stream().filter(m->belongsToCategory(m,selectedCategory)).toList();
         for(int i=0;i<modules.size();i++){
-            int x=panelX+136+(i%2)*168; int y=panelY+65+(i/2)*52;
-            if(mx>=x&&mx<=x+158&&my>=y&&my<=y+42){modules.get(i).toggle();return true;}
+            int x=panelX+136+(i%3)*132; int y=panelY+65+(i/3)*52;
+            if(mx>=x&&mx<=x+126&&my>=y&&my<=y+42){modules.get(i).toggle();return true;}
         }
         return super.mouseClicked(mx,my,button);
     }
