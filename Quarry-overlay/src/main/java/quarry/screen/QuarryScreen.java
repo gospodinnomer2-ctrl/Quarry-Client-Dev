@@ -24,8 +24,8 @@ public class QuarryScreen extends Screen {
         panelX = (width - panelW) / 2;
         panelY = (height - panelH) / 2;
 
-        ctx.fill(panelX + 3, panelY + 4, panelX + panelW + 3, panelY + panelH + 4, 0x55000000);
-        ctx.fill(panelX, panelY, panelX + panelW, panelY + panelH, 0xFF10131D);
+        rounded(ctx, panelX + 3, panelY + 4, panelW, panelH, 12, 0x55000000);
+        rounded(ctx, panelX, panelY, panelW, panelH, 12, 0xFF10131D);
         ctx.fill(panelX, panelY, panelX + panelW, panelY + 3, 0xFF9B72F2);
         ctx.fill(panelX, panelY + 3, panelX + 112, panelY + panelH, 0xFF151925);
         ctx.fill(panelX + 112, panelY + 3, panelX + 113, panelY + panelH, 0xFF292D3B);
@@ -37,7 +37,7 @@ public class QuarryScreen extends Screen {
             int y = panelY + 62 + i *  thirty();
             boolean active = selectedCategory == i;
             if (active) {
-                ctx.fill(panelX + 9, y - 5, panelX + 103, y + 17, 0xFF302747);
+                rounded(ctx, panelX + 9, y - 5, 94, 22, 6, 0xFF302747);
                 ctx.fill(panelX + 9, y - 5, panelX + 12, y + 17, 0xFFB58CFF);
             }
             ctx.drawTextWithShadow(textRenderer, Text.literal(CATEGORIES[i]), panelX + 20, y, active ? 0xFFFFFFFF : 0xFF9DA2B2);
@@ -57,13 +57,13 @@ public class QuarryScreen extends Screen {
                 int x = panelX + 132 + (index % 2) * 139;
                 int y = panelY + 65 + (index / 2) * 68;
                 boolean hover = mouseX >= x && mouseX <= x + 128 && mouseY >= y && mouseY <= y + 54;
-                ctx.fill(x, y, x + 128, y + 54, hover ? 0xFF252A3A : 0xFF1C2130);
+                rounded(ctx, x, y, 128, 54, 8, hover ? 0xFF2B3041 : 0xFF1C2130);
                 ctx.fill(x, y, x + 128, y + 1, module.isEnabled() ? 0xFF9B72F2 : 0xFF3A4052);
                 ctx.drawTextWithShadow(textRenderer, Text.literal(module.getName()), x + 10, y + 11, 0xFFF0F0F7);
                 ctx.drawTextWithShadow(textRenderer, Text.literal(module.isEnabled() ? "ENABLED" : "DISABLED"),
                         x + 10, y + 31, module.isEnabled() ? 0xFFB99AFF : 0xFF85899B);
                 int sx = x + 96, sy = y + 19;
-                ctx.fill(sx, sy, sx + 22, sy + 12, module.isEnabled() ? 0xFF8C65D8 : 0xFF414758);
+                rounded(ctx, sx, sy, 22, 12, 6, module.isEnabled() ? 0xFF8C65D8 : 0xFF414758);
                 ctx.fill(module.isEnabled() ? sx + 12 : sx + 2, sy + 2,
                         module.isEnabled() ? sx + 20 : sx + 10, sy + 10, 0xFFFFFFFF);
                 index++;
@@ -72,6 +72,16 @@ public class QuarryScreen extends Screen {
 
         ctx.drawTextWithShadow(textRenderer, Text.literal("QUARRY  •  VISUAL CLIENT"), panelX + 132, panelY + panelH - 20, 0xFF686F82);
         super.render(ctx, mouseX, mouseY, delta);
+    }
+
+    // Rounded scanline rendering keeps the UI soft without external graphics libraries.
+    private void rounded(DrawContext ctx, int x, int y, int w, int h, int radius, int color) {
+        int r = Math.min(radius, Math.min(w, h) / 2);
+        for (int row = 0; row < h; row++) {
+            double dy = row < r ? r - row - 0.5 : row >= h - r ? row - (h - r) + 0.5 : 0;
+            int inset = dy == 0 ? 0 : (int) Math.ceil(r - Math.sqrt(Math.max(0, r * r - dy * dy)));
+            ctx.fill(x + inset, y + row, x + w - inset, y + row + 1, color);
+        }
     }
 
     private int thirty() { return 30; }
