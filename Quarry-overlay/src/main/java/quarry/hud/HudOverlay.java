@@ -92,7 +92,8 @@ public final class HudOverlay {
             int py = 8;
             for (StatusEffectInstance effect : client.player.getStatusEffects()) {
                 String name = effect.getEffectType().value().getName().getString();
-                String duration = StatusEffectInstance.durationToString(effect, 1.0f);
+                int ticks = effect.getDuration();
+                String duration = ticks < 0 ? "∞" : String.format("%d:%02d", ticks / 1200, (ticks / 20) % 60);
                 String text = name + " " + duration;
                 panel(ctx, sw - client.textRenderer.getWidth(text) - 22, py,
                         client.textRenderer.getWidth(text) + 14, 18);
