@@ -20,18 +20,18 @@ public class QuarryScreen extends Screen {
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        ctx.fill(0, 0, width, height, 0x99060910);
+        ctx.fill(0, 0, width, height, 0xFF080A11);
         panelX = (width - panelW) / 2;
         panelY = (height - panelH) / 2;
 
-        rounded(ctx, panelX + 3, panelY + 4, panelW, panelH, 12, 0x55000000);
+        rounded(ctx, panelX + 3, panelY + 4, panelW, panelH, 12, 0xFF05060A);
         rounded(ctx, panelX, panelY, panelW, panelH, 12, 0xFF10131D);
         ctx.fill(panelX, panelY, panelX + panelW, panelY + 3, 0xFF9B72F2);
         ctx.fill(panelX, panelY + 3, panelX + 112, panelY + panelH, 0xFF151925);
         ctx.fill(panelX + 112, panelY + 3, panelX + 113, panelY + panelH, 0xFF292D3B);
 
-        ctx.drawTextWithShadow(textRenderer, Text.literal("QUARRY"), panelX + 17, panelY + 17, 0xFFE5D8FF);
-        ctx.drawTextWithShadow(textRenderer, Text.literal("CLIENT  /  1.21.4"), panelX + 17, panelY + 31, 0xFF85899B);
+        ctx.drawText(textRenderer, Text.literal("QUARRY"), panelX + 17, panelY + 17, 0xFFE5D8FF, false);
+        ctx.drawText(textRenderer, Text.literal("CLIENT  /  1.21.4"), panelX + 17, panelY + 31, 0xFF85899B, false);
 
         for (int i = 0; i < CATEGORIES.length; i++) {
             int y = panelY + 62 + i *  thirty();
@@ -40,17 +40,17 @@ public class QuarryScreen extends Screen {
                 rounded(ctx, panelX + 9, y - 5, 94, 22, 6, 0xFF302747);
                 ctx.fill(panelX + 9, y - 5, panelX + 12, y + 17, 0xFFB58CFF);
             }
-            ctx.drawTextWithShadow(textRenderer, Text.literal(CATEGORIES[i]), panelX + 20, y, active ? 0xFFFFFFFF : 0xFF9DA2B2);
+            ctx.drawText(textRenderer, Text.literal(CATEGORIES[i]), panelX + 20, y, active ? 0xFFFFFFFF : 0xFF9DA2B2);
         }
 
-        ctx.drawTextWithShadow(textRenderer, Text.literal(CATEGORIES[selectedCategory].toUpperCase()), panelX + 132, panelY + 20, 0xFFF0E9FF);
-        ctx.drawTextWithShadow(textRenderer, Text.literal("Toggle modules  •  Right Shift to open/close"), panelX + 132, panelY + 35, 0xFF85899B);
+        ctx.drawText(textRenderer, Text.literal(CATEGORIES[selectedCategory].toUpperCase()), panelX + 132, panelY + 20, 0xFFF0E9FF, false);
+        ctx.drawText(textRenderer, Text.literal("Toggle modules  •  Right Shift to open/close"), panelX + 132, panelY + 35, 0xFF85899B, false);
 
         List<Module> modules = ModuleManager.getModules().stream()
                 .filter(m -> belongsToCategory(m, selectedCategory)).toList();
         if (modules.isEmpty()) {
-            ctx.drawTextWithShadow(textRenderer, Text.literal("Nothing here yet"), panelX + 132, panelY + 100, 0xFF777D90);
-            ctx.drawTextWithShadow(textRenderer, Text.literal("More Quarry modules are coming."), panelX + 132, panelY + 115, 0xFF777D90);
+            ctx.drawText(textRenderer, Text.literal("Nothing here yet"), panelX + 132, panelY + 100, 0xFF777D90, false);
+            ctx.drawText(textRenderer, Text.literal("More Quarry modules are coming."), panelX + 132, panelY + 115, 0xFF777D90, false);
         } else {
             int index = 0;
             for (Module module : modules) {
@@ -59,8 +59,8 @@ public class QuarryScreen extends Screen {
                 boolean hover = mouseX >= x && mouseX <= x + 128 && mouseY >= y && mouseY <= y + 54;
                 rounded(ctx, x, y, 128, 54, 8, hover ? 0xFF2B3041 : 0xFF1C2130);
                 ctx.fill(x, y, x + 128, y + 1, module.isEnabled() ? 0xFF9B72F2 : 0xFF3A4052);
-                ctx.drawTextWithShadow(textRenderer, Text.literal(module.getName()), x + 10, y + 11, 0xFFF0F0F7);
-                ctx.drawTextWithShadow(textRenderer, Text.literal(module.isEnabled() ? "ENABLED" : "DISABLED"),
+                ctx.drawText(textRenderer, Text.literal(module.getName()), x + 10, y + 11, 0xFFF0F0F7, false);
+                ctx.drawText(textRenderer, Text.literal(module.isEnabled() ? "ENABLED" : "DISABLED"),
                         x + 10, y + 31, module.isEnabled() ? 0xFFB99AFF : 0xFF85899B);
                 int sx = x + 96, sy = y + 19;
                 rounded(ctx, sx, sy, 22, 12, 6, module.isEnabled() ? 0xFF8C65D8 : 0xFF414758);
@@ -70,7 +70,7 @@ public class QuarryScreen extends Screen {
             }
         }
 
-        ctx.drawTextWithShadow(textRenderer, Text.literal("QUARRY  •  VISUAL CLIENT"), panelX + 132, panelY + panelH - 20, 0xFF686F82);
+        ctx.drawText(textRenderer, Text.literal("QUARRY  •  VISUAL CLIENT"), panelX + 132, panelY + panelH - 20, 0xFF686F82, false);
         super.render(ctx, mouseX, mouseY, delta);
     }
 
