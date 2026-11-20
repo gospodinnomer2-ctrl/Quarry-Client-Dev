@@ -24,31 +24,31 @@ public class QuarryScreen extends Screen {
         ctx.fill(panelX, panelY, panelX + panelW, panelY + 3, 0xFF9B72F2);
         ctx.fill(panelX, panelY + 3, panelX + 116, panelY + panelH, 0xFF151925);
         ctx.fill(panelX + 116, panelY + 3, panelX + 117, panelY + panelH, 0xFF292D3B);
-        ctx.drawText(textRenderer, Text.literal("QUARRY"), panelX + 17, panelY + 17, 0xFFE5D8FF, false);
-        ctx.drawText(textRenderer, Text.literal("CLIENT / 1.21.4"), panelX + 17, panelY + 31, 0xFF85899B, false);
+        ctx.drawText(textRenderer, Text.literal("QUARRY"), panelX + 17, panelY + 17, 0xFFFFFFFF, true);
+        ctx.drawText(textRenderer, Text.literal("CLIENT / 1.21.4"), panelX + 17, panelY + 31, 0xFFB9BED0, true);
         for (int i = 0; i < CATEGORIES.length; i++) {
             int y = panelY + 62 + i * 30; boolean active = selectedCategory == i;
             if (active) { rounded(ctx, panelX + 9, y - 5, 98, 22, 6, 0xFF302747); ctx.fill(panelX + 9, y - 5, panelX + 12, y + 17, 0xFFB58CFF); }
-            ctx.drawText(textRenderer, Text.literal(CATEGORIES[i]), panelX + 20, y, active ? 0xFFFFFFFF : 0xFF9DA2B2, false);
+            ctx.drawText(textRenderer, Text.literal(CATEGORIES[i]), panelX + 20, y, active ? 0xFFFFFFFF : 0xFFB9BED0, true);
         }
-        ctx.drawText(textRenderer, Text.literal(CATEGORIES[selectedCategory].toUpperCase()), panelX + 136, panelY + 20, 0xFFF0E9FF, false);
+        ctx.drawText(textRenderer, Text.literal(CATEGORIES[selectedCategory].toUpperCase()), panelX + 136, panelY + 20, 0xFFFFFFFF, true);
         ctx.drawText(textRenderer, Text.literal("Click a card to toggle a module"), panelX + 136, panelY + 35, 0xFF85899B, false);
         List<Module> modules = ModuleManager.getModules().stream().filter(m -> belongsToCategory(m, selectedCategory)).toList();
         if (modules.isEmpty()) {
-            ctx.drawText(textRenderer, Text.literal("Modules for this category are not implemented yet."), panelX + 136, panelY + 100, 0xFF9298AA, false);
+            ctx.drawText(textRenderer, Text.literal("Modules for this category are not implemented yet."), panelX + 136, panelY + 100, 0xFFD0D4E0, true);
         } else {
             for (int i = 0; i < modules.size(); i++) {
                 Module m = modules.get(i); int x = panelX + 136 + (i % 3) * 132; int y = panelY + 65 + (i / 3) * 52;
                 boolean hover = mouseX >= x && mouseX <= x + 126 && mouseY >= y && mouseY <= y + 42;
                 rounded(ctx, x, y, 126, 42, 7, hover ? 0xFF2B3041 : 0xFF1C2130);
                 ctx.fill(x, y, x + 126, y + 1, m.isEnabled() ? 0xFF9B72F2 : 0xFF3A4052);
-                ctx.drawText(textRenderer, Text.literal(m.getName()), x + 9, y + 8, 0xFFF0F0F7, false);
-                ctx.drawText(textRenderer, Text.literal(m.isEnabled() ? "ON" : "OFF"), x + 9, y + 24, m.isEnabled() ? 0xFFB99AFF : 0xFF85899B, false);
+                ctx.drawText(textRenderer, Text.literal(m.getName()), x + 9, y + 8, 0xFFFFFFFF, true);
+                ctx.drawText(textRenderer, Text.literal(m.isEnabled() ? "ON" : "OFF"), x + 9, y + 24, m.isEnabled() ? 0xFFD4BEFF : 0xFFB9BED0, true);
                 rounded(ctx, x + 98, y + 14, 22, 12, 6, m.isEnabled() ? 0xFF8C65D8 : 0xFF414758);
                 ctx.fill(m.isEnabled() ? x + 110 : x + 100, y + 16, m.isEnabled() ? x + 118 : x + 108, y + 24, 0xFFFFFFFF);
             }
         }
-        ctx.drawText(textRenderer, Text.literal("QUARRY  •  VISUAL CLIENT"), panelX + 136, panelY + panelH - 19, 0xFF686F82, false);
+        ctx.drawText(textRenderer, Text.literal("QUARRY  •  VISUAL CLIENT"), panelX + 136, panelY + panelH - 19, 0xFFB9BED0, true);
         super.render(ctx, mouseX, mouseY, delta);
     }
 
