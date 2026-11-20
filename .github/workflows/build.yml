@@ -42,6 +42,18 @@ jobs:
           unzip -q "$ZIP_FILE"
           ls -la
 
+      - name: Inspect Quarry sources
+        run: |
+          echo "===== PROJECT FILES ====="
+          find Quarry -type f -maxdepth 8 | sort
+          for f in Quarry/build.gradle Quarry/settings.gradle Quarry/gradle.properties Quarry/src/main/resources/fabric.mod.json Quarry/src/main/resources/quarry.mixins.json $(find Quarry/src/main/java -type f -name '*.java' | sort); do
+            if [ -f "$f" ]; then
+              echo ""
+              echo "===== $f ====="
+              cat "$f"
+            fi
+          done
+
       - name: Build mod
         run: gradle -p Quarry build
 
