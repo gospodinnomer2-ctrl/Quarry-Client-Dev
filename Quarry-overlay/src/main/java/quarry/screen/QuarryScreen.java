@@ -4,28 +4,40 @@ import quarry.module.Module;
 import quarry.module.ModuleManager;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.util.Identifier;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import java.util.List;
 
 public class QuarryScreen extends Screen {
     private static final String[] CATEGORIES = {"Combat", "Visuals", "Movement", "HUD", "Misc"};
+    private static final Identifier SKY = Identifier.of("quarry", "textures/gui/quarry_sky.png");
     private int selectedCategory = 3;
     private int panelX, panelY, panelW = 560, panelH = 360;
 
     public QuarryScreen() { super(Text.literal("Quarry")); }
 
     @Override
+    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
+        // Deliberately do not invoke vanilla menu blur.
+    }
+
+    @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         ctx.fill(0, 0, width, height, 0xFF080A11);
+        ctx.drawTexture(RenderLayer::getGuiTextured, SKY, 0, 0, 0, 0, width, height, 128, 72);
+        ctx.fill(0, 0, width, height, 0x99060916);
         panelX = (width - panelW) / 2; panelY = (height - panelH) / 2;
         rounded(ctx, panelX + 3, panelY + 4, panelW, panelH, 12, 0xFF05060A);
         rounded(ctx, panelX, panelY, panelW, panelH, 12, 0xFF10131D);
         ctx.fill(panelX, panelY, panelX + panelW, panelY + 3, 0xFF9B72F2);
         ctx.fill(panelX, panelY + 3, panelX + 116, panelY + panelH, 0xFF151925);
         ctx.fill(panelX + 116, panelY + 3, panelX + 117, panelY + panelH, 0xFF292D3B);
-        ctx.drawText(textRenderer, Text.literal("QUARRY"), panelX + 17, panelY + 17, 0xFFFFFFFF, true);
-        ctx.drawText(textRenderer, Text.literal("CLIENT / 1.21.4"), panelX + 17, panelY + 31, 0xFFB9BED0, true);
+        rounded(ctx, panelX + 10, panelY + 10, 98, 38, 10, 0xE90A0C18);
+        ctx.fill(panelX + 15, panelY + 17, panelX + 17, panelY + 41, 0xFFB58CFF);
+        ctx.drawText(textRenderer, Text.literal("QUARRY").copy().styled(st -> st.withBold(true)), panelX + 23, panelY + 16, 0xFFFFFFFF, true);
+        ctx.drawText(textRenderer, Text.literal("VISUAL CLIENT"), panelX + 23, panelY + 31, 0xFFD5BFFF, true);
         for (int i = 0; i < CATEGORIES.length; i++) {
             int y = panelY + 62 + i * 30; boolean active = selectedCategory == i;
             if (active) { rounded(ctx, panelX + 9, y - 5, 98, 22, 6, 0xFF302747); ctx.fill(panelX + 9, y - 5, panelX + 12, y + 17, 0xFFB58CFF); }
