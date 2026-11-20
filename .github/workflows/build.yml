@@ -40,6 +40,10 @@ jobs:
 
           echo "Found: $ZIP_FILE"
           unzip -q "$ZIP_FILE"
+          if [ -d "Quarry-overlay" ]; then
+            cp -R Quarry-overlay/. Quarry/
+            echo "Applied Quarry source overlay"
+          fi
           ls -la
 
       - name: Inspect Quarry sources
