@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -28,8 +28,19 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Extract source
-        run: unzip -q Quarry-1.0.0-source.zip
+      - name: Find and extract ZIP
+        run: |
+          ZIP_FILE=$(find . -maxdepth 1 -type f -iname '*.zip' | head -n 1)
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "ZIP archive not found!"
+            ls -la
+            exit 1
+          fi
+
+          echo "Found: $ZIP_FILE"
+          unzip -q "$ZIP_FILE"
+          ls -la
 
       - name: Build mod
         run: gradle -p Quarry build
