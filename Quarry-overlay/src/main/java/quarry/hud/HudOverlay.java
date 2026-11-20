@@ -40,19 +40,6 @@ public final class HudOverlay {
         lastFrameNanos = frameNow;
         float smooth = 1f - (float)Math.exp(-frameSeconds / 0.09f);
 
-        if (ModuleManager.WATERMARK.isEnabled()) {
-            String label = "QUARRY";
-            int textW = client.textRenderer.getWidth(label);
-            int w = textW + 42;
-            int x = (sw - w) / 2;
-            int y = (sh - 30) / 2;
-            pill(ctx, x, y, w, 28, 0xE610131D);
-            pill(ctx, x + 2, y + 2, w - 4, 24, 0xFF1B2030);
-            ctx.fill(x + 13, y + 8, x + 15, y + 20, 0xFFB58CFF);
-            ctx.drawText(client.textRenderer, Text.literal(label), x + 22, y + 10, 0xFFF3ECFF, false);
-            ctx.fill(x + w - 15, y + 8, x + w - 13, y + 20, 0xFFB58CFF);
-        }
-
         if (ModuleManager.FPS.isEnabled()) {
             float actualFps = client.getCurrentFps();
             if (displayedFps <= 0f) displayedFps = actualFps;
@@ -63,7 +50,7 @@ public final class HudOverlay {
             pill(ctx, pillX, 8, pillW, 27, 0xE610131D);
             pill(ctx, pillX + 2, 10, pillW - 4, 23, 0xFF1B2030);
             ctx.fill(pillX + 11, 18, pillX + 13, 25, 0xFFB58CFF);
-            ctx.drawText(client.textRenderer, Text.literal(fpsText), pillX + 20, 17, 0xFFF3ECFF, false);
+            ctx.drawText(client.textRenderer, Text.literal(fpsText), pillX + 20, 17, 0xFFFFFFFF, true);
         }
 
         int x = 8;
