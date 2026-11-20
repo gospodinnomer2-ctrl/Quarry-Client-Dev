@@ -17,6 +17,14 @@ import java.time.format.DateTimeFormatter;
 public final class HudOverlay {
     private static final long SESSION_START = System.currentTimeMillis();
     private static final DateTimeFormatter CLOCK_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final long TARGET_HOLD_MS = 1_250L;
+    private static final long TARGET_FADE_MS = 300L;
+    private static LivingEntity lastTarget;
+    private static long lastTargetSeen;
+    private static float targetHudAlpha;
+    private static float displayedTargetHealth = -1f;
+    private static float displayedFps;
+    private static long lastFrameNanos = System.nanoTime();
 
     private HudOverlay() {}
 
@@ -26,6 +34,11 @@ public final class HudOverlay {
 
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
+        long now = System.currentTimeMillis();
+        long frameNow = System.nanoTime();
+        float frameSeconds = Math.min(0.1f, (frameNow - lastFrameNanos) / 1_000_000_000f);
+        lastFrameNanos = frameNow;
+        float smooth = 1f - (float)Math.exp(-frameSeconds / 0.09f);
 
         if (ModuleManager.WATERMARK.isEnabled()) {
             String label = "QUARRY";
@@ -40,6 +53,19 @@ public final class HudOverlay {
             ctx.fill(x + w - 15, y + 8, x + w - 13, y + 20, 0xFFB58CFF);
         }
 
+        if (ModuleManager.FPS.isEnabled()) {
+            float actualFps = client.getCurrentFps();
+            if (displayedFps <= 0f) displayedFps = actualFps;
+            displayedFps += (actualFps - displayedFps) * smooth;
+            String fpsText = Math.round(displayedFps) + " FPS";
+            int pillW = Math.max(82, client.textRenderer.getWidth(fpsText) + 34);
+            int pillX = (sw - pillW) / 2;
+            pill(ctx, pillX, 8, pillW, 27, 0xE610131D);
+            pill(ctx, pillX + 2, 10, pillW - 4, 23, 0xFF1B2030);
+            ctx.fill(pillX + 11, 18, pillX + 13, 25, 0xFFB58CFF);
+            ctx.drawText(client.textRenderer, Text.literal(fpsText), pillX + 20, 17, 0xFFF3ECFF, false);
+        }
+
         int x = 8;
         int y = 8;
         StringBuilder line = new StringBuilder();
@@ -47,7 +73,6 @@ public final class HudOverlay {
             line.append(String.format("XYZ %.1f %.1f %.1f",
                     client.player.getX(), client.player.getY(), client.player.getZ()));
         }
-        if (ModuleManager.FPS.isEnabled()) append(line, client.getCurrentFps() + " FPS");
         if (ModuleManager.PING.isEnabled()) {
             var entry = client.getNetworkHandler() == null ? null :
                     client.getNetworkHandler().getPlayerListEntry(client.player.getUuid());
@@ -132,7 +157,31 @@ public final class HudOverlay {
         if (ModuleManager.TARGET_HUD.isEnabled()) {
             HitResult hit = client.crosshairTarget;
             if (hit instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof LivingEntity target
-                    && target != client.player) drawTarget(ctx, client, target, sw, sh);
+                    && target != client.player && target.isAlive()) {
+                lastTarget = target;
+                lastTargetSeen = now;
+            }
+
+            boolean canKeepTarget = lastTarget != null && lastTarget.isAlive()
+                    && lastTarget.getWorld() == client.world
+                    && now - lastTargetSeen <= TARGET_HOLD_MS + TARGET_FADE_MS;
+            float wantedAlpha = 0f;
+            if (canKeepTarget) {
+                long elapsed = now - lastTargetSeen;
+                wantedAlpha = elapsed <= TARGET_HOLD_MS ? 1f
+                        : 1f - Math.min(1f, (elapsed - TARGET_HOLD_MS) / (float)TARGET_FADE_MS);
+            }
+            targetHudAlpha += (wantedAlpha - targetHudAlpha) * smooth;
+            if (targetHudAlpha > 0.015f && lastTarget != null) {
+                drawTarget(ctx, client, lastTarget, sw, sh, targetHudAlpha, smooth);
+            } else if (!canKeepTarget) {
+                lastTarget = null;
+                displayedTargetHealth = -1f;
+            }
+        } else {
+            targetHudAlpha = 0f;
+            lastTarget = null;
+            displayedTargetHealth = -1f;
         }
     }
 
@@ -147,18 +196,34 @@ public final class HudOverlay {
                 pressed ? 0xFFBFA2FF : 0xFFE6E8F0, false);
     }
 
-    private static void drawTarget(DrawContext ctx, MinecraftClient client, LivingEntity target, int sw, int sh) {
+    private static void drawTarget(DrawContext ctx, MinecraftClient client, LivingEntity target,
+                                   int sw, int sh, float alpha, float smooth) {
         int x = sw / 2 + 12;
         int y = sh / 2 + 12;
         float max = Math.max(1f, target.getMaxHealth());
         float health = Math.max(0f, Math.min(max, target.getHealth()));
-        panel(ctx, x, y, 150, 43);
-        ctx.drawText(client.textRenderer, target.getName(), x + 8, y + 7, 0xFFFFFFFF, false);
-        ctx.drawText(client.textRenderer, Text.literal(String.format("%.1f / %.1f HP", health, max)),
-                x + 8, y + 20, 0xFFBFC4D4, false);
+        if (displayedTargetHealth < 0f) displayedTargetHealth = health;
+        displayedTargetHealth += (health - displayedTargetHealth) * smooth;
+        int a = Math.max(0, Math.min(255, Math.round(alpha * 255f)));
+        roundedPanel(ctx, x, y, 150, 43, withAlpha(0xF010131D, a), withAlpha(0xFF9B72F2, a));
+        ctx.drawText(client.textRenderer, target.getName(), x + 8, y + 7, withAlpha(0xFFFFFFFF, a), false);
+        ctx.drawText(client.textRenderer, Text.literal(String.format("%.1f / %.1f HP", displayedTargetHealth, max)),
+                x + 8, y + 20, withAlpha(0xFFBFC4D4, a), false);
         int barX = x + 8, barY = y + 34, barW = 134;
-        ctx.fill(barX, barY, barX + barW, barY + 4, 0xFF34394A);
-        ctx.fill(barX, barY, barX + Math.round(barW * health / max), barY + 4, 0xFF9B72F2);
+        ctx.fill(barX, barY, barX + barW, barY + 4, withAlpha(0xFF34394A, a));
+        ctx.fill(barX, barY, barX + Math.round(barW * displayedTargetHealth / max), barY + 4,
+                withAlpha(0xFF9B72F2, a));
+    }
+
+    private static int withAlpha(int color, int alpha) {
+        return (color & 0x00FFFFFF) | (alpha << 24);
+    }
+
+    private static void roundedPanel(DrawContext ctx, int x, int y, int w, int h, int background, int accent) {
+        int a = (background >>> 24) & 0xFF;
+        ctx.fill(x + 1, y + 1, x + w + 1, y + h + 1, withAlpha(0x99000000, a));
+        pill(ctx, x, y, w, h, background);
+        ctx.fill(x + 8, y, x + w - 8, y + 1, accent);
     }
 
     private static void pill(DrawContext ctx, int x, int y, int w, int h, int color) {
