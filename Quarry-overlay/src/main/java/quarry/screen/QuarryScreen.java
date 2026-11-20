@@ -40,7 +40,7 @@ public class QuarryScreen extends Screen {
                 rounded(ctx, panelX + 9, y - 5, 94, 22, 6, 0xFF302747);
                 ctx.fill(panelX + 9, y - 5, panelX + 12, y + 17, 0xFFB58CFF);
             }
-            ctx.drawText(textRenderer, Text.literal(CATEGORIES[i]), panelX + 20, y, active ? 0xFFFFFFFF : 0xFF9DA2B2);
+            ctx.drawText(textRenderer, Text.literal(CATEGORIES[i]), panelX + 20, y, active ? 0xFFFFFFFF : 0xFF9DA2B2, false);
         }
 
         ctx.drawText(textRenderer, Text.literal(CATEGORIES[selectedCategory].toUpperCase()), panelX + 132, panelY + 20, 0xFFF0E9FF, false);
@@ -61,7 +61,7 @@ public class QuarryScreen extends Screen {
                 ctx.fill(x, y, x + 128, y + 1, module.isEnabled() ? 0xFF9B72F2 : 0xFF3A4052);
                 ctx.drawText(textRenderer, Text.literal(module.getName()), x + 10, y + 11, 0xFFF0F0F7, false);
                 ctx.drawText(textRenderer, Text.literal(module.isEnabled() ? "ENABLED" : "DISABLED"),
-                        x + 10, y + 31, module.isEnabled() ? 0xFFB99AFF : 0xFF85899B);
+                        x + 10, y + 31, module.isEnabled() ? 0xFFB99AFF : 0xFF85899B, false);
                 int sx = x + 96, sy = y + 19;
                 rounded(ctx, sx, sy, 22, 12, 6, module.isEnabled() ? 0xFF8C65D8 : 0xFF414758);
                 ctx.fill(module.isEnabled() ? sx + 12 : sx + 2, sy + 2,
